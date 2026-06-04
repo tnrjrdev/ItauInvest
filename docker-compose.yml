@@ -1,0 +1,56 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: itau-invest-db
+    environment:
+      POSTGRES_DB: ${DB_NAME:-itau_invest}
+      POSTGRES_USER: ${DB_USERNAME:-itau}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-itau}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-itau} -d ${DB_NAME:-itau_invest}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - itau-net
+
+  backend:
+    build:
+      context: ./backend
+    container_name: itau-invest-backend
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/${DB_NAME:-itau_invest}
+      DB_USERNAME: ${DB_USERNAME:-itau}
+      DB_PASSWORD: ${DB_PASSWORD:-itau}
+      JWT_SECRET: ${JWT_SECRET:-b3V0clNlY3JldEtleUZvckl0YXVJbnZlc3RBcHBsaWNhdGlvbkpXVDIwMjQxMjM0NTY3ODkw}
+      JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-3600000}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:5173,http://localhost}
+    ports:
+      - "8080:8080"
+    networks:
+      - itau-net
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: itau-invest-frontend
+    depends_on:
+      - backend
+    ports:
+      - "5173:80"
+    networks:
+      - itau-net
+
+volumes:
+  pgdata:
+
+networks:
+  itau-net:
+    driver: bridge

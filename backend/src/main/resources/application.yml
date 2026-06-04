@@ -1,0 +1,79 @@
+spring:
+  application:
+    name: itau-invest
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/itau_invest}
+    username: ${DB_USERNAME:itau}
+    password: ${DB_PASSWORD:itau}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      pool-name: itau-invest-pool
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: false
+        jdbc:
+          time_zone: UTC
+    show-sql: false
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      write-dates-as-timestamps: false
+
+server:
+  port: ${SERVER_PORT:8080}
+  error:
+    include-message: always
+    include-binding-errors: always
+  compression:
+    enabled: true
+
+# Configuracao de seguranca / JWT da aplicacao
+app:
+  security:
+    jwt:
+      # Chave Base64 (HS256). Sobrescreva via variavel de ambiente em producao.
+      secret: ${JWT_SECRET:b3V0clNlY3JldEtleUZvckl0YXVJbnZlc3RBcHBsaWNhdGlvbkpXVDIwMjQxMjM0NTY3ODkw}
+      # Tempo de expiracao do access token em milissegundos (1h)
+      expiration-ms: ${JWT_EXPIRATION_MS:3600000}
+      issuer: itau-invest
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+  api-docs:
+    path: /v3/api-docs
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when_authorized
+
+logging:
+  level:
+    root: INFO
+    com.itau.invest: INFO
+    org.springframework.security: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{traceId:-}] %-5level %logger{36} - %msg%n"
