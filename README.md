@@ -71,6 +71,12 @@ User (1)───(1) Wallet (1)───(N) Transaction (N)───(0..1) Inves
 > **Fórmula da valorização (simulação determinística):**
 > `valorBruto = principal × (1 + taxaAnual/100)^(dias/365)`
 
+📐 **Diagramas UML** (casos de uso, classes, ER, componentes, sequência e estados):
+veja [`docs/DIAGRAMS.md`](docs/DIAGRAMS.md) (Mermaid) ou as imagens em
+[`docs/uml/`](docs/uml/README.md). Visão geral do sistema:
+
+![Visão Geral](docs/uml/0-overview.png)
+
 ---
 
 ## 🚀 Como executar
